@@ -18,9 +18,10 @@ const roomList = config.room.roomList
 module.exports=bot=>{
     return async function onMessage(msg){
         //判断消息是否来自自己，直接return
+        console.log(msg.type())
         if(msg.self()) return
         //判断此消息类型是否为文本
-        if(msg.type()===Message.Type.text){
+        if(msg.type() == Message.Type.Text){
             //判断消息类型是否来自群聊
             if(msg.room()){
                 //获取群聊
@@ -116,19 +117,16 @@ function requestRobot(info) {
                 
                 let res = JSON.parse(body)
                 console.log(res)
-                // if (res.isSuccess) {
-                //     let send = res.data.reply
-                //将返回的字符串换行替换为<br/>
-                //     //将机器人的名称替换成为自己的机器人名
-                //     send = send.replace(/Smile/g, name)
-                //     resolve(send)
-                // } else {
-                //     if (res.code == 1010) {
-                //         resolve("没事别老@我，我还以为是爱情来了")
-                //     } else {
-                //         resolve("你在说什么，我听不清")
-                //     }
-                // }
+                if(res.result==0){
+                    let send =res.content
+                    //  将机器人的名称替换成为自己的机器人名
+                    // send = send.replace(/Smile/g, name)
+                    send=send.replace(/{br}/g,'\n')
+                    send=`${send}`
+                    resolve(send)
+                }else{
+                    resolve("没事别老@我，我还以为是爱情来了")
+                }
             } else {
                 resolve("你在说什么，我脑子有点短路！")
             }
