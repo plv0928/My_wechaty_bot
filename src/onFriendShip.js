@@ -9,7 +9,7 @@ module.exports=async function onFriendShip(friendship){
     let logMsg
     try {
         logMsg="添加好友"+friendship.contact().name()
-        console.log(logMsg)
+        // console.log(logMsg)
         switch(friendship.type()){
             // 1.新的好友请求
             // 设置请求后，我们可以从request.hello获取验证消息

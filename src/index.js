@@ -18,9 +18,16 @@ const onRoomJoin =require("./onRoomJoin")
 const onMessage =require('./onMessage')
 const onFriendShip = require('./onFriendShip')
 
+//初始化定时任务
+const {myCronJob} =require("./cron")
+
 bot
     .on("scan",onScan)//机器人需要扫描二维码时监听
     .on("room-join",onRoomJoin)//加入房间监听
     .on("message",onMessage(bot))//消息监听
     .on("friendship",onFriendShip)//好友添加监听
+    .on("login",(user=>{
+        console.log(`用户${user}登录成功`)
+        myCronJob(bot)
+    }))
     .start()

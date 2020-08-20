@@ -2,8 +2,9 @@
 [![Wechaty开源激励计划](https://img.shields.io/badge/Wechaty-开源激励计划-green.svg)](https://github.com/juzibot/Welcome/wiki/Everything-about-Wechaty)
 
 
-<!-- 初始化项目 -->
+#初始化项目
 npm install
 
-<!-- 运行 -->
+
+#运行
 node src/index.js

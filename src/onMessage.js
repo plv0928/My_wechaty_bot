@@ -1,3 +1,5 @@
+var {colorConversion} = require("./colour")
+
 //node-requset请求包
 const request = require("request")
 //请求参数解码
@@ -9,8 +11,9 @@ const config = require("./config")
 //定义机器人名称
 const name = config.name
 //引入管理群组列表
-const roomList = config.room.roomList
-
+const {roomList} = config.room
+//引入菜单
+const {meun} =config
 
 /** 
  * 封装消息监听回调
@@ -18,7 +21,7 @@ const roomList = config.room.roomList
 module.exports=bot=>{
     return async function onMessage(msg){
         //判断消息是否来自自己，直接return
-        console.log(msg.type())
+        // console.log(msg.type())
         if(msg.self()) return
         //判断此消息类型是否为文本
         if(msg.type() == Message.Type.Text){
@@ -47,9 +50,9 @@ module.exports=bot=>{
                 //回复信息是锁管理的群聊名
                 if(await isRoomName(bot,msg)) return
                 //请求机器人聊天接口
-                let res =await requestRobot(msg.text())
+                // let res =await requestRobot(msg.text())
                 //返回聊天接口内容
-                await msg.say(res)
+                // await msg.say(res)
             }
         }else{
             console.log("消息不是文本")
@@ -64,7 +67,8 @@ module.exports=bot=>{
  * @return { Promise} true-是 false-不是
  */
 async function isAddRoom(msg){
-    //处理关键字“加群”
+    // console.log(msg)
+    //处理关键字“加群，菜单,颜色”
     if(msg.text()=="加群"){
         let roomListName = Object.keys(roomList)
         let info = `${name}当前管理群聊有${roomListName.length}个，回复群聊名即可加入哦\n\n`
@@ -72,6 +76,18 @@ async function isAddRoom(msg){
             info +="[" + v + "]"+"\n"
         })
         msg.say(info)
+        return true
+    }else if(msg.text()=="菜单"){
+        let _meun =meun
+        let _meuninfo=`${name}当前功能有${_meun.length}个，回复对应功能即可查看相应的功能哦\n\n`
+        _meun.map(v=>{
+            _meuninfo +="[" + v +"]"+"\n"
+        })
+        msg.say(_meuninfo)
+        return true
+    }else if(msg.text().indexOf("颜色")!= -1){
+        let colorRes= await colorConversion(msg.text())
+        await msg.say(colorRes)
         return true
     }
     return false
@@ -116,7 +132,7 @@ function requestRobot(info) {
             if (!error && response.statusCode == 200) {
                 
                 let res = JSON.parse(body)
-                console.log(res)
+                // console.log(res)
                 if(res.result==0){
                     let send =res.content
                     //  将机器人的名称替换成为自己的机器人名
