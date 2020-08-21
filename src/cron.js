@@ -10,6 +10,7 @@ const { dateFtt } = require("../utils/formatTime")
  */
 async function myCronJob(bot) {
     await getDayTask(bot)
+    await pushFundInfo(bot)
 }
 //获取当日的定时任务
 async function getDayTask(bot) {
@@ -49,6 +50,16 @@ async function sendCronTask(bot, list) {
         }, null, true, 'Asia/Shanghai')
         // console.log(list[i].taskTime)
     }
+}
+//每天下午2点半定时推送今天基金信息
+async function pushFundInfo(bot){
+    let sql = 'SELECT * from fund_info'
+    await mysqlPool(sql).then((res)=>{
+        console.log("查询需要提示的基金列表")
+        console.log(res)
+    }).catch((err)=>{
+        console.log("基金推送出错"+err)
+    })
 }
 module.exports = {
     myCronJob

@@ -20,7 +20,7 @@ module.exports={
         addRoom:true
     },
     //菜单
-    meun:["加群","天气","颜色","笑话"],
+    meun:["加群","天气","颜色","笑话","提醒"],
     //数据库配
     mysqlConfig:{
         database:'wechaty_bot',//数据库名
