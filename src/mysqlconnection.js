@@ -16,8 +16,9 @@ async function mysqlPool(sql){
     return new Promise(function(resolve,reject){
         pool.query(sql,function(err,results,fields){
             if(err){
-                console.log(err)
-                reject(err)
+                // console.log(results)
+                // reject(err)
+                reject(false)
             }
             resolve(results)
             // console.log(results)

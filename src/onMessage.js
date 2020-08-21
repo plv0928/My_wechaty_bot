@@ -1,5 +1,7 @@
+//引入颜色转化方法
 var {colorConversion} = require("./colour")
-
+//引入提醒方法
+const {addCronTask} =require("./getCrontask")
 //node-requset请求包
 const request = require("request")
 //请求参数解码
@@ -45,14 +47,14 @@ module.exports=bot=>{
                 //没有提到自己的信息进行忽略
             }else{
                 //私人信息
-                //判断回复是自定义关键字 当前为“加群”
-                if(await isAddRoom(msg)) return
-                //回复信息是锁管理的群聊名
+                //判断回复是自定义关键字 
+                if(await isKeyWord(bot,msg)) return
+                //回复信息是所管理的群聊名
                 if(await isRoomName(bot,msg)) return
                 //请求机器人聊天接口
-                // let res =await requestRobot(msg.text())
+                let res =await requestRobot(msg.text())
                 //返回聊天接口内容
-                // await msg.say(res)
+                await msg.say(res)
             }
         }else{
             console.log("消息不是文本")
@@ -62,11 +64,11 @@ module.exports=bot=>{
 }
 
 /**
- *@description 回复信息是关键字“加群”处理函数 
+ *@description 回复信息是关键字处理函数 
  * @param {object} msg 消息对象
  * @return { Promise} true-是 false-不是
  */
-async function isAddRoom(msg){
+async function isKeyWord(bot,msg){
     // console.log(msg)
     //处理关键字“加群，菜单,颜色”
     if(msg.text()=="加群"){
@@ -88,6 +90,13 @@ async function isAddRoom(msg){
     }else if(msg.text().indexOf("颜色")!= -1){
         let colorRes= await colorConversion(msg.text())
         await msg.say(colorRes)
+        return true
+    }else if(msg.text().indexOf("提醒")!=-1){
+        //获取发送者的信息
+        const name = msg.from().payload.name
+        // console.log(name)
+        let text=await addCronTask(msg.text(),name,bot)
+        await msg.say(text)
         return true
     }
     return false
