@@ -1,7 +1,6 @@
 const { CronJob } = require("cron")
-const {mysqlPool} = require("./mysqlconnection")
-const {Contact} = require("wechaty")
-const {dateFtt} =require("../utils/formatTime")
+const { mysqlPool } = require("./mysqlconnection")
+const { dateFtt } = require("../utils/formatTime")
 
 /**
  * @description 定时任务
@@ -9,31 +8,48 @@ const {dateFtt} =require("../utils/formatTime")
 /**
  * 每天凌晨00:00是从数据库获取今天的定时任务
  */
- async function myCronJob(bot){
-        let dailyTasks= await getDayTask()
-        await sendCronTask(bot,dailyTasks)
-    }
+async function myCronJob(bot) {
+    await getDayTask(bot)
+}
 //获取当日的定时任务
-async function getDayTask(){
-        let sql='SELECT * FROM calendar where DATE_FORMAT(taskTime,"%y%m%d")=DATE_FORMAT(now(),"%y%m%d")'
-        let res=await mysqlPool(sql)
-        return res
+async function getDayTask(bot) {
+    console.log("正在查询今天的定时任务")
+    var dailyTasks
+    //查询当天任务的sql
+    let sql = 'SELECT * FROM calendar where DATE_FORMAT(taskTime,"%y%m%d")=DATE_FORMAT(now(),"%y%m%d")'
+    //当机器人上线时查询当天的任务
+    dailyTasks = await mysqlPool(sql)
+    console.log("查询成功，正在分发定时任务")
+    //每天凌晨时重置当天的任务
+    new CronJob('00 00 00 * * *', async function () {
+        console.log("到凌晨了，要查询今天的任务了")
+        dailyTasks = await mysqlPool(sql)
+        console.log("查询成功，正在分发定时任务")
+        await sendCronTask(bot, dailyTasks)
+    }, null, true, 'Asia/Shanghai');
+    await sendCronTask(bot, dailyTasks)
 }
 //发送定时提醒
-async function sendCronTask(bot,list){
-    for(let i=0;i<list.length;i++){
-        var _time =dateFtt(list[i].taskTime)
+async function sendCronTask(bot, list) {
+    // console.log(list) 
+    for (let i = 0; i < list.length; i++) {
+        var _time = dateFtt(list[i].taskTime)
         // console.log(_time)
-        var cronTime=`${_time.ss} ${_time.mm} ${_time.hh} ${_time.dd} ${_time.MM} *`
+        var cronTime = `${_time.ss} ${_time.mm} ${_time.hh} * * *`
         // console.log(cronTime)
-        var dailyCron = new CronJob(cronTime,function(){
-            console.log('11111111111110')
-        },null,true,'Asia/Shanghai')
+        new CronJob(cronTime, async function () {
+        let message=''
+            const contactByName = await bot.Contact.find({ name: list[i].objectName })
+            if (list[i].objectName == "my") {
+                 message = list[i].content
+            } else {
+                 message = `${list[i].initiateName}给您发了一个提醒，他说：${list[i].content}`
+            }
+            contactByName.say(message)
+        }, null, true, 'Asia/Shanghai')
         // console.log(list[i].taskTime)
     }
-    // return new CronJob() 
-    // console.log(list)
 }
-module.exports={
+module.exports = {
     myCronJob
 }

@@ -28,6 +28,6 @@ bot
     .on("friendship",onFriendShip)//好友添加监听
     .on("login",(user=>{
         console.log(`用户${user}登录成功`)
-        myCronJob(bot)
+        myCronJob(bot)//登录后开始初始化提醒的定时任务
     }))
     .start()
