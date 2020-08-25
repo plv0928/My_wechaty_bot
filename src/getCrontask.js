@@ -18,7 +18,7 @@ async function addCronTask(msg, name, bot) {
         objectName = name
     }
     //判断是否是机器人的好友
-    if (isFriend != null) {
+    if (!isFriend.id) {
         return returnMsg = `${objectName}暂时不是我的好友，\n请把我推荐给他（她），验证消息上填写工具人既可以自动添加我了，啾咪`
     }
     //判断是否设置指定日期任务

@@ -2,6 +2,8 @@
 var {colorConversion} = require("./colour")
 //引入提醒方法
 const {addCronTask} =require("./getCrontask")
+//引入基金关注方法
+const {addFund} =require("./AddFundFouse")
 //node-requset请求包
 const request = require("request")
 //请求参数解码
@@ -69,6 +71,7 @@ module.exports=bot=>{
  * @return { Promise} true-是 false-不是
  */
 async function isKeyWord(bot,msg){
+    const username = msg.from().payload.name
     // console.log(msg)
     //处理关键字“加群，菜单,颜色”
     if(msg.text()=="加群"){
@@ -79,6 +82,7 @@ async function isKeyWord(bot,msg){
         })
         msg.say(info)
         return true
+        //处理关键字菜单
     }else if(msg.text()=="菜单"){
         let _meun =meun
         let _meuninfo=`${name}当前功能有${_meun.length}个，回复对应功能即可查看相应的功能哦\n\n`
@@ -87,18 +91,25 @@ async function isKeyWord(bot,msg){
         })
         msg.say(_meuninfo)
         return true
+        //处理关键字颜色
     }else if(msg.text().indexOf("颜色")!= -1){
         let colorRes= await colorConversion(msg.text())
         await msg.say(colorRes)
         return true
+        //处理关键字提醒
     }else if(msg.text().indexOf("提醒")!=-1){
         //获取发送者的信息
-        const name = msg.from().payload.name
         // console.log(name)
-        let text=await addCronTask(msg.text(),name,bot)
+        let text=await addCronTask(msg.text(),username,bot)
+        await msg.say(text)
+        return true
+        //处理关键字基金
+    }else if(msg.text().indexOf("基金")!=-1){
+        let text=await addFund(msg.text(),username)
         await msg.say(text)
         return true
     }
+    
     return false
 }
 /**
@@ -145,8 +156,9 @@ function requestRobot(info) {
                 if(res.result==0){
                     let send =res.content
                     //  将机器人的名称替换成为自己的机器人名
-                    // send = send.replace(/Smile/g, name)
+                    send = send.replace(/菲菲/g, name)
                     send=send.replace(/{br}/g,'\n')
+                    send = send.replace(/help/g,'菜单')
                     send=`${send}`
                     resolve(send)
                 }else{
